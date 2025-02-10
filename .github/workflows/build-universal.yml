@@ -18,19 +18,19 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-#  build-arm64:
-#    uses: ./.github/workflows/build.yml
-#    with:
-#      runner: arm64_runner
-#      arch: arm64
-#      arch_label: ARM64
-#    secrets:
-#      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-#      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  build-arm64:
+    uses: ./.github/workflows/build.yml
+    with:
+      runner: ubuntu-24.04-arm
+      arch: arm64
+      arch_label: ARM64
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   build-universal:
-    needs: [build-amd64]
-#    needs: [build-amd64, build-arm64]
+#    needs: [build-amd64]
+    needs: [build-amd64, build-arm64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -57,7 +57,7 @@ jobs:
         run:
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n');
           do
-            docker manifest create $tag $tag-amd64;
+          docker manifest create $tag $tag-amd64 $tag-arm64;
           done
 
       - name: Push Universal Docker Image
